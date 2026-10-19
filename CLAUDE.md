@@ -1,6 +1,7 @@
 # エッセイ・ポートフォリオ（モノレポ）
 
 要件の詳細は必ず [docs/requirements.md](docs/requirements.md) を参照すること。
+セットアップ・公開手順は [docs/setup.md](docs/setup.md)。
 
 ## 構成
 
