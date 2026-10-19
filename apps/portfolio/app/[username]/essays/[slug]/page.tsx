@@ -1,11 +1,13 @@
 // エッセイ詳細（/[ユーザー名]/essays/[slug]）：題名、公開日、本文、前後のエッセイ・トップへ戻る導線
 
 import type { Metadata } from "next";
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { formatDate } from "@portfolio/shared";
 import { EssayBody, extractPlainText } from "@portfolio/ui";
+import { Magnetic } from "@/components/motion/Magnetic";
 import { getEssay, getProfile, type EssaySummary } from "@/lib/data";
 
 export const revalidate = 30;
@@ -43,31 +45,39 @@ export default async function EssayPage({ params }: Props) {
 
   return (
     <main className="mx-auto max-w-2xl px-6 pb-24 pt-10 sm:pt-16">
-      <Link href={`/${profile.username}`} className="text-sm text-theme-muted no-underline hover:text-theme-accent">
-        ← {profile.name}
-      </Link>
+      <div className="inline-block">
+        <Magnetic reach={12}>
+          <Link href={`/${profile.username}`} className="text-sm text-theme-muted no-underline hover:text-theme-accent">
+            ← {profile.name}
+          </Link>
+        </Magnetic>
+      </div>
 
       <article className="mt-12">
-        <header className="mb-12">
+        <header className="rise mb-12" style={{ "--rise-delay": "0.1s" } as CSSProperties}>
           <time dateTime={new Date(essay.publishedAt).toISOString()} className="text-sm text-theme-muted">
             {formatDate(essay.publishedAt, profile.locale)}
           </time>
           <h1 className="mt-3 font-heading text-[clamp(1.9rem,6vw,3rem)] font-bold leading-snug">{essay.title}</h1>
         </header>
-        <EssayBody body={essay.body} />
+        <div className="rise" style={{ "--rise-delay": "0.35s" } as CSSProperties}>
+          <EssayBody body={essay.body} />
+        </div>
       </article>
 
       <nav aria-label={t("essays")} className="mt-20 grid gap-4 border-t border-theme-border pt-10 sm:grid-cols-2">
         <NeighborLink username={profile.username} essay={previous} label={t("previous")} align="left" />
         <NeighborLink username={profile.username} essay={next} label={t("next")} align="right" />
       </nav>
-      <div className="mt-12 text-center">
-        <Link
-          href={`/${profile.username}#essays`}
-          className="inline-block rounded-theme bg-theme-accent px-6 py-3 text-sm font-medium text-theme-on-accent no-underline"
-        >
-          {t("backToTop")}
-        </Link>
+      <div className="mt-12 flex justify-center">
+        <Magnetic>
+          <Link
+            href={`/${profile.username}#essays`}
+            className="inline-block rounded-theme bg-theme-accent px-6 py-3 text-sm font-medium text-theme-on-accent no-underline"
+          >
+            {t("backToTop")}
+          </Link>
+        </Magnetic>
       </div>
     </main>
   );
@@ -88,7 +98,7 @@ function NeighborLink({
   return (
     <Link
       href={`/${username}/essays/${essay.slug}`}
-      className={`block rounded-theme border border-theme-border bg-theme-surface p-5 no-underline transition-colors hover:border-theme-accent ${align === "right" ? "sm:text-right" : ""}`}
+      className={`essay-card block rounded-theme border border-theme-border bg-theme-surface p-5 no-underline ${align === "right" ? "sm:text-right" : ""}`}
     >
       <span className="text-xs text-theme-muted">
         {align === "left" ? `← ${label}` : `${label} →`}

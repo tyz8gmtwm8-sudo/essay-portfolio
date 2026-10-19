@@ -13,7 +13,7 @@ export function NotFoundView({
   homeLabel: string;
 }) {
   return (
-    <main className="relative flex min-h-dvh flex-col items-center justify-center px-6 text-center">
+    <main className="rise relative flex min-h-dvh flex-col items-center justify-center px-6 text-center">
       <p aria-hidden className="font-heading text-[clamp(5rem,20vw,10rem)] leading-none text-theme-accent opacity-80">
         404
       </p>

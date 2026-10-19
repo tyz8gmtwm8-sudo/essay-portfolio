@@ -23,7 +23,7 @@ export default async function SiteTopPage() {
     <ThemeScope theme={DEFAULT_THEME} lang={locale} className="relative isolate min-h-dvh overflow-x-clip">
       <ThemeFonts presets={[DEFAULT_THEME.preset]} />
       <Backdrop pattern="brush" />
-      <main className="relative mx-auto flex min-h-dvh max-w-4xl flex-col justify-center px-6 py-24">
+      <main className="rise relative mx-auto flex min-h-dvh max-w-4xl flex-col justify-center px-6 py-24">
         <p className="text-sm tracking-[0.3em] text-theme-muted">{t("siteTitle").toUpperCase()}</p>
         <h1 className="mt-6 font-heading text-[clamp(2.2rem,7vw,4.5rem)] font-bold leading-tight">
           {t("siteTagline")}

@@ -8,6 +8,8 @@ import { THEME_PRESETS } from "@portfolio/shared";
 import { ThemeFonts, ThemeScope } from "@portfolio/ui";
 import { Backdrop } from "@/components/Backdrop";
 import { PortfolioProvider } from "@/components/PortfolioContext";
+import { CustomCursor } from "@/components/motion/CustomCursor";
+import { MotionProvider } from "@/components/motion/MotionProvider";
 import { getProfile } from "@/lib/data";
 
 // 30秒ごとにデータを読み直す（編集サイトで保存した内容が1分以内に反映される）
@@ -29,15 +31,19 @@ export default async function UserLayout({
   return (
     <ThemeScope theme={profile.theme} lang={profile.locale} className="relative isolate min-h-dvh overflow-x-clip">
       <ThemeFonts presets={[profile.theme.preset]} />
-      <Backdrop pattern={THEME_PRESETS[profile.theme.preset].pattern} />
-      <PortfolioProvider
-        value={{
-          username: profile.username,
-          strings: { notFoundTitle: t("notFoundTitle"), notFoundBody: t("notFoundBody"), goHome: t("goHome") },
-        }}
-      >
-        <div className="relative">{children}</div>
-      </PortfolioProvider>
+      {/* テーマごとの動きの強さを、動く部品すべてに配る */}
+      <MotionProvider presetId={profile.theme.preset}>
+        <Backdrop pattern={THEME_PRESETS[profile.theme.preset].pattern} />
+        <PortfolioProvider
+          value={{
+            username: profile.username,
+            strings: { notFoundTitle: t("notFoundTitle"), notFoundBody: t("notFoundBody"), goHome: t("goHome") },
+          }}
+        >
+          <div className="relative">{children}</div>
+        </PortfolioProvider>
+        <CustomCursor />
+      </MotionProvider>
     </ThemeScope>
   );
 }

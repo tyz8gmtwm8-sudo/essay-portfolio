@@ -41,6 +41,8 @@ export interface ThemePreset {
     duration: number;
     /** スライドインの移動距離（px） */
     distance: number;
+    /** 動きの緩急（CSS の cubic-bezier の4つの数値）。1を超える値があると「弾む」動きになる */
+    ease: [number, number, number, number];
   };
 }
 
@@ -62,7 +64,7 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
     },
     radius: "28px",
     pattern: "blobs",
-    motion: { magnet: 0.45, stiffness: 260, damping: 11, duration: 0.6, distance: 48 },
+    motion: { magnet: 0.45, stiffness: 260, damping: 11, duration: 0.6, distance: 48, ease: [0.34, 1.56, 0.64, 1] },
   },
   natural: {
     id: "natural",
@@ -81,7 +83,7 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
     },
     radius: "12px",
     pattern: "brush",
-    motion: { magnet: 0.25, stiffness: 80, damping: 18, duration: 1.2, distance: 28 },
+    motion: { magnet: 0.25, stiffness: 80, damping: 18, duration: 1.2, distance: 28, ease: [0.25, 0.8, 0.3, 1] },
   },
   mono: {
     id: "mono",
@@ -100,7 +102,7 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
     },
     radius: "0px",
     pattern: "lines",
-    motion: { magnet: 0.15, stiffness: 150, damping: 26, duration: 0.9, distance: 16 },
+    motion: { magnet: 0.15, stiffness: 150, damping: 26, duration: 0.9, distance: 16, ease: [0.4, 0, 0.2, 1] },
   },
   night: {
     id: "night",
@@ -119,7 +121,7 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
     },
     radius: "16px",
     pattern: "glow",
-    motion: { magnet: 0.3, stiffness: 170, damping: 18, duration: 0.8, distance: 32 },
+    motion: { magnet: 0.3, stiffness: 170, damping: 18, duration: 0.8, distance: 32, ease: [0.22, 1, 0.36, 1] },
   },
 };
 
@@ -161,6 +163,9 @@ export function themeToCssVars(theme: UserTheme): Record<string, string> {
     "--font-heading": preset.fonts.heading,
     "--font-body": preset.fonts.body,
     "--radius": preset.radius,
+    "--motion-duration": `${preset.motion.duration}s`,
+    "--motion-distance": `${preset.motion.distance}px`,
+    "--motion-ease": `cubic-bezier(${preset.motion.ease.join(", ")})`,
   };
 }
 

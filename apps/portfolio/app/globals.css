@@ -40,3 +40,162 @@ a {
 ::selection {
   background: color-mix(in srgb, var(--accent, #6f7f45) 30%, transparent);
 }
+
+/* =====================================================================
+   動き・演出（強さや緩急はテーマの CSS 変数 --motion-〜 で変わる）
+   ===================================================================== */
+
+/* 読み込み時にふわっと登場（--rise-delay で順番をずらす） */
+.rise {
+  animation: rise var(--motion-duration, 0.8s) var(--motion-ease, ease-out) both;
+  animation-delay: var(--rise-delay, 0s);
+}
+.rise-pop {
+  animation: rise-pop calc(var(--motion-duration, 0.8s) * 1.2) var(--motion-ease, ease-out) both;
+  animation-delay: var(--rise-delay, 0s);
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--motion-distance, 24px));
+  }
+}
+@keyframes rise-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+}
+
+/* ページ切り替え */
+.page-enter {
+  animation: page-enter calc(var(--motion-duration, 0.8s) * 0.8) var(--motion-ease, ease-out) both;
+}
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--motion-distance, 24px) * 0.5));
+  }
+}
+
+/* スクロールを促すインジケーター（線の中を光が流れる） */
+.scroll-cue {
+  animation: scroll-cue 1.8s ease-in-out infinite;
+}
+@keyframes scroll-cue {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(200%);
+  }
+}
+
+/* 題名カード */
+.essay-card {
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s,
+    transform 0.2s;
+}
+.essay-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 12px 40px -18px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+[data-preset="night"] .essay-card:hover {
+  box-shadow: 0 0 40px -8px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
+/* 背景の図形がふわふわ漂う */
+.backdrop-float {
+  animation: float 14s ease-in-out infinite;
+}
+.backdrop-float-alt {
+  animation: float 18s ease-in-out infinite reverse;
+}
+.backdrop-pulse {
+  animation: pulse-glow 8s ease-in-out infinite;
+}
+.backdrop-twinkle {
+  animation: twinkle 4s ease-in-out infinite;
+}
+.brush-draw {
+  stroke-dasharray: 1600;
+  animation: brush-draw 3s var(--motion-ease, ease-out) both;
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  33% {
+    transform: translate(24px, -18px) rotate(6deg);
+  }
+  66% {
+    transform: translate(-16px, 14px) rotate(-4deg);
+  }
+}
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.16;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.28;
+    transform: scale(1.08);
+  }
+}
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+@keyframes brush-draw {
+  from {
+    stroke-dashoffset: 1600;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* カスタムカーソル表示中は、普通のカーソルを隠す */
+.has-custom-cursor,
+.has-custom-cursor * {
+  cursor: none !important;
+}
+
+/* スマホなど（マウスがない端末）：タップしたときに少し縮んで反応する */
+@media (hover: none) {
+  .essay-card:active {
+    transform: scale(0.98);
+    border-color: var(--accent);
+  }
+}
+
+/* OS の「視差効果を減らす」がオンなら、動きを止める */
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .rise-pop,
+  .page-enter,
+  .scroll-cue,
+  .backdrop-float,
+  .backdrop-float-alt,
+  .backdrop-pulse,
+  .backdrop-twinkle,
+  .brush-draw {
+    animation: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
