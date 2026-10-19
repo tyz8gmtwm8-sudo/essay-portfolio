@@ -106,6 +106,8 @@
       "sizeXLarge": "Extra large",
       "heading2": "Heading (large)",
       "heading3": "Heading (small)",
+      "heading2Button": "Heading",
+      "heading3Button": "Subheading",
       "quote": "Quote",
       "divider": "Divider"
     }

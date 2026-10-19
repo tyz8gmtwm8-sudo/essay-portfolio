@@ -65,10 +65,10 @@ export function Toolbar({ editor }: { editor: Editor }) {
       <Separator />
 
       <ToolButton label={t("heading2")} active={state.h2} onClick={() => chain().toggleHeading({ level: 2 }).run()}>
-        H2
+        {t("heading2Button")}
       </ToolButton>
       <ToolButton label={t("heading3")} active={state.h3} onClick={() => chain().toggleHeading({ level: 3 }).run()}>
-        H3
+        {t("heading3Button")}
       </ToolButton>
       <ToolButton label={t("quote")} active={state.quote} onClick={() => chain().toggleBlockquote().run()}>
         <span aria-hidden className="text-lg leading-none">”</span>
@@ -98,7 +98,7 @@ function ToolButton({
       aria-label={label}
       aria-pressed={active ?? undefined}
       onClick={onClick}
-      className="inline-flex size-9 items-center justify-center rounded-md text-sm text-ink hover:bg-ink/5 aria-pressed:bg-brand-soft aria-pressed:text-brand"
+      className="inline-flex h-9 min-w-9 items-center justify-center whitespace-nowrap rounded-md px-2 text-sm text-ink hover:bg-ink/5 aria-pressed:bg-brand-soft aria-pressed:text-brand"
     >
       {children}
     </button>

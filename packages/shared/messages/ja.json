@@ -106,6 +106,8 @@
       "sizeXLarge": "特大",
       "heading2": "見出し（大）",
       "heading3": "見出し（小）",
+      "heading2Button": "見出し大",
+      "heading3Button": "見出し小",
       "quote": "引用",
       "divider": "区切り線"
     }
