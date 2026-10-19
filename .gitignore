@@ -1,0 +1,28 @@
+# 依存ライブラリ
+node_modules/
+
+# ビルド成果物
+.next/
+out/
+dist/
+.turbo/
+*.tsbuildinfo
+next-env.d.ts
+
+# 環境変数・秘密情報（絶対にコミットしない）
+.env
+.env*.local
+*service-account*.json
+credentials.json
+
+# Firebase Emulator のログ
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+firebase/emulator-data/
+
+# Vercel
+.vercel
+
+# OS
+.DS_Store
