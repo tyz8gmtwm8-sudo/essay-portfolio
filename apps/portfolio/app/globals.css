@@ -1,0 +1,42 @@
+@import "tailwindcss";
+@import "@portfolio/ui/essay-body.css";
+
+@source "../../../packages/ui/src";
+
+/* テーマの CSS 変数（--bg, --fg, --accent など）を Tailwind のクラスでも使えるようにする
+   例: bg-theme-bg, text-theme-muted, border-theme-border */
+@theme inline {
+  --color-theme-bg: var(--bg);
+  --color-theme-surface: var(--surface);
+  --color-theme-fg: var(--fg);
+  --color-theme-muted: var(--muted);
+  --color-theme-border: var(--border);
+  --color-theme-accent: var(--accent);
+  --color-theme-on-accent: var(--on-accent);
+  --radius-theme: var(--radius);
+  --font-heading: var(--font-heading);
+  --font-body: var(--font-body);
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  background: #f3eee4;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent, #6f7f45);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent, #6f7f45) 30%, transparent);
+}

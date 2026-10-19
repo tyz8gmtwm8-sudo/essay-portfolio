@@ -1,0 +1,60 @@
+@import "tailwindcss";
+@import "@portfolio/ui/essay-body.css";
+
+/* packages/ui の中で使っている Tailwind のクラスも読み取る */
+@source "../../../packages/ui/src";
+
+/* 編集サイト自体の配色（ユーザーのテーマとは別） */
+@theme {
+  --color-ink: #1f1d29;
+  --color-paper: #f8f6f2;
+  --color-card: #ffffff;
+  --color-line: #e6e1d8;
+  --color-sub: #6b6677;
+  --color-brand: #4a43c7;
+  --color-brand-soft: #eceafc;
+  --color-ok: #23805a;
+  --color-ok-soft: #e3f4ec;
+  --color-warn: #a35b00;
+  --color-warn-soft: #fff2dc;
+  --color-danger: #c33a32;
+  --color-danger-soft: #fdeceb;
+  --font-sans: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, system-ui, sans-serif;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* キーボード操作時のフォーカスを見やすく */
+:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+/* ---------- エッセイエディタ（Tiptap） ---------- */
+.tiptap {
+  min-height: 50vh;
+  outline: none;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--color-sub);
+  opacity: 0.6;
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
