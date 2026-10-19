@@ -1,0 +1,17 @@
+{
+  "name": "@portfolio/firebase",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "emulators": "firebase emulators:start --project demo-portfolio",
+    "test": "firebase emulators:exec --only firestore --project demo-portfolio \"vitest run\"",
+    "deploy:rules": "firebase deploy --only firestore:rules,firestore:indexes"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "6.0.0",
+    "firebase": "13.0.0",
+    "firebase-tools": "15.34.0",
+    "vitest": "5.0.5"
+  }
+}

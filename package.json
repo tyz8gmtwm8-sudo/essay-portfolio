@@ -1,0 +1,16 @@
+{
+  "name": "essay-portfolio",
+  "private": true,
+  "packageManager": "pnpm@12.14.0",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "emulators": "pnpm --filter @portfolio/firebase emulators",
+    "test:rules": "pnpm --filter @portfolio/firebase test"
+  },
+  "devDependencies": {
+    "turbo": "2.11.9",
+    "typescript": "5.9.3"
+  }
+}

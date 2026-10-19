@@ -1,0 +1,58 @@
+/*
+ * エッセイ本文の見た目。編集サイトのエディタとポートフォリオで同じ見た目にするため共通化しています。
+ * 色やフォントはテーマの CSS 変数（--fg, --accent など）を使います。
+ */
+.essay-body {
+  font-family: var(--font-body);
+  color: var(--fg);
+  font-size: 1.0625rem;
+  line-height: 2;
+  letter-spacing: 0.02em;
+  overflow-wrap: anywhere;
+}
+
+.essay-body > * + * {
+  margin-top: 1.25em;
+}
+
+.essay-body h2,
+.essay-body h3 {
+  font-family: var(--font-heading);
+  line-height: 1.5;
+  margin-top: 2.2em;
+}
+
+.essay-body h2 {
+  font-size: 1.5em;
+}
+
+.essay-body h3 {
+  font-size: 1.2em;
+}
+
+.essay-body blockquote {
+  border-left: 3px solid var(--accent);
+  padding: 0.25em 0 0.25em 1.25em;
+  color: var(--muted);
+}
+
+.essay-body hr {
+  border: none;
+  height: 1px;
+  background: var(--border);
+  margin: 2.5em auto;
+  width: 40%;
+}
+
+.essay-body .essay-size-small {
+  font-size: 0.85em;
+}
+
+.essay-body .essay-size-large {
+  font-size: 1.25em;
+}
+
+.essay-body .essay-size-xlarge {
+  font-size: 1.6em;
+  line-height: 1.6;
+}

@@ -1,0 +1,180 @@
+rules_version = '2';
+
+// =====================================================================
+// Firestore セキュリティルール
+// - 誰でも読める：プロフィール（users）、ユーザー名（usernames）、公開済みエッセイ
+// - 書き込めるのは「ログイン済み・メール確認済みの本人」だけ
+// - 文字数の上限などの値チェックもここで行う
+//   （packages/shared/src/validation.ts と同じ値にしておくこと）
+// =====================================================================
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- 共通の関数 ----------
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // ログイン済み・メール確認済み・本人
+    function isVerifiedOwner(uid) {
+      return signedIn()
+        && request.auth.uid == uid
+        && request.auth.token.email_verified == true;
+    }
+
+    function userPath(uid) {
+      return /databases/$(database)/documents/users/$(uid);
+    }
+
+    function essayPath(uid, essayId) {
+      return /databases/$(database)/documents/users/$(uid)/essays/$(essayId);
+    }
+
+    function reservedUsernames() {
+      return [
+        'admin', 'administrator', 'api', 'about', 'account', 'app', 'auth', 'editor',
+        'essay', 'essays', 'help', 'home', 'icon', 'apple-icon', 'login', 'logout',
+        'signin', 'signup', 'register', 'onboarding', 'opengraph-image', 'twitter-image',
+        'portfolio', 'privacy', 'profile', 'robots', 'root', 'settings', 'sitemap',
+        'static', 'support', 'system', 'terms', 'theme', 'user', 'users', 'www',
+        'null', 'undefined'
+      ];
+    }
+
+    // 半角英小文字・数字・ハイフンで3〜20文字、予約語以外
+    function validUsername(name) {
+      return name is string
+        && name.matches('^[a-z0-9-]{3,20}$')
+        && !(name in reservedUsernames());
+    }
+
+    function validTheme(theme) {
+      return theme is map
+        && theme.keys().hasOnly(['preset', 'accentColor'])
+        && theme.keys().hasAll(['preset', 'accentColor'])
+        && theme.preset in ['pop', 'natural', 'mono', 'night']
+        && (theme.accentColor == null
+            || (theme.accentColor is string && theme.accentColor.matches('^#[0-9a-fA-F]{6}$')));
+    }
+
+    // 顔写真は「空」か「本人のフォルダ（avatars/{uid}/）にある Cloudinary の画像」だけ
+    function validAvatarUrl(url, uid) {
+      return url is string
+        && url.size() <= 500
+        && (url == ''
+            || url.matches('^https://res[.]cloudinary[.]com/[a-zA-Z0-9_-]+/image/upload/(v[0-9]+/)?avatars/' + uid + '/[a-zA-Z0-9_.-]+$'));
+    }
+
+    function validUser(d, uid) {
+      return d.keys().hasOnly([
+          'username', 'name', 'comment', 'avatarUrl', 'theme', 'locale',
+          'essayCount', 'lastDeletedEssayId', 'createdAt', 'updatedAt'])
+        && d.keys().hasAll([
+          'username', 'name', 'comment', 'avatarUrl', 'theme', 'locale',
+          'essayCount', 'lastDeletedEssayId', 'createdAt', 'updatedAt'])
+        && d.name is string && d.name.size() <= 30
+        && d.comment is string && d.comment.size() <= 100
+        && validAvatarUrl(d.avatarUrl, uid)
+        && validTheme(d.theme)
+        && d.locale in ['ja', 'en']
+        && d.essayCount is int && d.essayCount >= 0 && d.essayCount <= 200
+        && (d.lastDeletedEssayId == null || d.lastDeletedEssayId is string)
+        && d.updatedAt == request.time;
+    }
+
+    function validEssay(d) {
+      return d.keys().hasOnly([
+          'title', 'slug', 'body', 'status', 'publishedAt', 'createdAt', 'updatedAt'])
+        && d.keys().hasAll([
+          'title', 'slug', 'body', 'status', 'publishedAt', 'createdAt', 'updatedAt'])
+        && d.title is string && d.title.size() >= 1 && d.title.size() <= 60
+        && d.slug is string && d.slug.matches('^[a-z0-9-]{1,60}$')
+        && d.body is map && d.body.type == 'doc'
+        && (!('content' in d.body) || (d.body.content is list && d.body.content.size() <= 2000))
+        && d.status in ['draft', 'published']
+        && (d.publishedAt == null || d.publishedAt is timestamp)
+        // 公開するときは公開日が必須
+        && (d.status == 'draft' || d.publishedAt is timestamp)
+        && d.updatedAt == request.time;
+    }
+
+    // ---------- users/{uid}：プロフィール・テーマ ----------
+    match /users/{uid} {
+      allow read: if true;
+
+      // 初回設定：usernames/{username} と同じトランザクションで作る
+      allow create: if isVerifiedOwner(uid)
+        && validUser(request.resource.data, uid)
+        && validUsername(request.resource.data.username)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.essayCount == 0
+        && request.resource.data.lastDeletedEssayId == null
+        && getAfter(/databases/$(database)/documents/usernames/$(request.resource.data.username)).data.uid == uid;
+
+      allow update: if isVerifiedOwner(uid)
+        && validUser(request.resource.data, uid)
+        // ユーザー名と作成日時は変更できない
+        && request.resource.data.username == resource.data.username
+        && request.resource.data.createdAt == resource.data.createdAt
+        && validCounterChange(uid);
+
+      allow delete: if isVerifiedOwner(uid);
+
+      // エッセイ件数カウンターの変更は「同じ」「+1」「実際にエッセイを1件削除したときの -1」だけ許可
+      function validCounterChange(uid) {
+        let before = resource.data.essayCount;
+        let after = request.resource.data.essayCount;
+        let deletedId = request.resource.data.lastDeletedEssayId;
+        return after == before
+          || after == before + 1
+          || (after == before - 1
+              && deletedId is string
+              && exists(essayPath(uid, deletedId))
+              && !existsAfter(essayPath(uid, deletedId)));
+      }
+
+      // ---------- users/{uid}/essays/{essayId}：エッセイ ----------
+      match /essays/{essayId} {
+        // 公開済みは誰でも、下書きは本人だけ読める
+        allow read: if resource.data.status == 'published'
+          || (signedIn() && request.auth.uid == uid);
+
+        // 作成時はカウンターを同時に +1 する（200件上限をカウンターで守る）
+        allow create: if isVerifiedOwner(uid)
+          && validEssay(request.resource.data)
+          && request.resource.data.createdAt == request.time
+          && getAfter(userPath(uid)).data.essayCount == get(userPath(uid)).data.essayCount + 1;
+
+        allow update: if isVerifiedOwner(uid)
+          && validEssay(request.resource.data)
+          && request.resource.data.slug == resource.data.slug
+          && request.resource.data.createdAt == resource.data.createdAt;
+
+        // 削除時はカウンターを同時に -1 する
+        allow delete: if isVerifiedOwner(uid)
+          && getAfter(userPath(uid)).data.essayCount == get(userPath(uid)).data.essayCount - 1
+          && getAfter(userPath(uid)).data.lastDeletedEssayId == essayId;
+      }
+    }
+
+    // ---------- usernames/{username}：ユーザー名の重複防止 ----------
+    match /usernames/{username} {
+      allow read: if true;
+
+      // 「未使用の名前（＝まだ存在しないドキュメント）」かつ「自分のuid」のときだけ作成できる。
+      // すでに存在する名前への書き込みは update 扱いになり、下で禁止しているので二重登録できない。
+      // 1人1つまで：プロフィールがまだなく、同時に作るプロフィールのユーザー名と一致すること
+      allow create: if signedIn()
+        && isVerifiedOwner(request.resource.data.uid)
+        && request.resource.data.keys().hasOnly(['uid'])
+        && validUsername(username)
+        && !exists(userPath(request.auth.uid))
+        && getAfter(userPath(request.auth.uid)).data.username == username;
+
+      allow update: if false;
+
+      allow delete: if signedIn() && resource.data.uid == request.auth.uid;
+    }
+  }
+}
