@@ -44,7 +44,7 @@ export function Hero({ preset, name, comment, avatarUrl, scrollLabel }: HeroProp
         {name}
       </h1>
       {comment && (
-        <p className="rise mt-5 max-w-xl text-lg text-theme-muted sm:text-xl" style={delay(0.4)}>
+        <p className="rise mt-5 max-w-xl text-balance text-lg text-theme-muted sm:text-xl" style={delay(0.4)}>
           {comment}
         </p>
       )}

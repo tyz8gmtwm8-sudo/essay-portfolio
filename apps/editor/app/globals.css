@@ -22,6 +22,17 @@
   --font-sans: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, system-ui, sans-serif;
 }
 
+/* エッセイ本文の共通CSS（packages/ui/src/essay-body.css）が使う色を、編集サイトの配色で決めておく。
+   これがないと、エディタで引用の線や区切り線が見えなくなる */
+:root {
+  --fg: var(--color-ink);
+  --muted: var(--color-sub);
+  --border: var(--color-line);
+  --accent: var(--color-brand);
+  --font-heading: var(--font-sans);
+  --font-body: var(--font-sans);
+}
+
 body {
   background: var(--color-paper);
   color: var(--color-ink);

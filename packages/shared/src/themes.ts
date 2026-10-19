@@ -1,6 +1,6 @@
 // テーマのプリセット定義。編集サイト（プレビュー）とポートフォリオの両方で使います。
 // 色やフォントを「CSS変数」に変換して画面に適用します。
-// CSS変数 = `--accent: #ff5a5f;` のように名前を付けた値。CSSの中で var(--accent) として使い回せます。
+// CSS変数 = `--accent: #f5474d;` のように名前を付けた値。CSSの中で var(--accent) として使い回せます。
 
 import { readableTextColor } from "./color";
 import type { ThemePresetId, UserTheme } from "./types";
@@ -55,7 +55,7 @@ export const THEME_PRESETS: Record<ThemePresetId, ThemePreset> = {
       text: "#2b2340",
       subText: "#6b6280",
       border: "#f0dfc6",
-      accent: "#ff5a5f",
+      accent: "#f5474d",
     },
     fonts: {
       heading: "'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', sans-serif",

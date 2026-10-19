@@ -34,7 +34,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [emailVerified, setEmailVerified] = useState(false);
   const [profile, setProfile] = useState<UserDoc | null>(null);
-  const [profileLoading, setProfileLoading] = useState(true);
+  // どのユーザーのプロフィールを読み込み終えたか（今のユーザーと違えば「読み込み中」）
+  const [profileLoadedFor, setProfileLoadedFor] = useState<string | null>(null);
 
   // ログイン状態の変化を見張る
   useEffect(() => {
@@ -48,24 +49,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // ログイン中は自分のプロフィールを見張る（保存すると即座に画面に反映される）
   const uid = user?.uid;
   useEffect(() => {
-    if (!uid || !emailVerified) {
-      setProfile(null);
-      setProfileLoading(false);
-      return;
-    }
-    setProfileLoading(true);
+    if (!uid || !emailVerified) return;
     return onSnapshot(
       doc(firestore(), "users", uid),
       (snapshot) => {
         setProfile(snapshot.exists() ? (snapshot.data({ serverTimestamps: "estimate" }) as UserDoc) : null);
-        setProfileLoading(false);
+        setProfileLoadedFor(uid);
       },
-      () => setProfileLoading(false),
+      () => {
+        setProfile(null);
+        setProfileLoadedFor(uid);
+      },
     );
   }, [uid, emailVerified]);
 
+  // ログイン中・メール確認済みなのに、まだそのユーザーのプロフィールを読み終えていなければ「読み込み中」
+  const profileLoading = Boolean(uid && emailVerified && profileLoadedFor !== uid);
+  // 前にログインしていた別ユーザーのプロフィールが残っていても使わない
+  const currentProfile = uid && profileLoadedFor === uid ? profile : null;
+
   // プロフィールに保存された表示言語と、今の画面の言語が違えば合わせる
-  const profileLocale = profile?.locale;
+  const profileLocale = currentProfile?.locale;
   useEffect(() => {
     if (profileLocale && profileLocale !== currentLocale) {
       saveLocaleCookie(profileLocale);
@@ -91,8 +95,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [router]);
 
   const value = useMemo(
-    () => ({ loading, user, emailVerified, profile, profileLoading, refreshUser, logout }),
-    [loading, user, emailVerified, profile, profileLoading, refreshUser, logout],
+    () => ({ loading, user, emailVerified, profile: currentProfile, profileLoading, refreshUser, logout }),
+    [loading, user, emailVerified, currentProfile, profileLoading, refreshUser, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
