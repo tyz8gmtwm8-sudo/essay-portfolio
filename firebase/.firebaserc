@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "demo-portfolio"
+    "default": "demo-portfolio",
+    "prod": "essay-portfolio-wo7c1"
   }
 }
